@@ -11,7 +11,8 @@ from app.routers.file_curd_router import FileHandleRouter
 # from app.routers.text2echarts_router import Text2EchartsRouter
 import logging.config
 import uvicorn
-
+from app.utils.database_manager import DatabaseManager
+from app.config import settings
 
 
 #
@@ -62,6 +63,12 @@ async def root():
 
 
 
+
+@app.on_event("startup")
+async def startup_event():
+    db_manager = DatabaseManager(settings.MYSQL_URI)
+    db_manager.create_tables()
+    logger.info("数据库表初始化完成")
 if __name__ == "__main__":
 
     uvicorn.run("main:app", host="0.0.0.0", port=8019,workers=1, timeout_keep_alive=600 ,reload=True)
