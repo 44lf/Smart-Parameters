@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional, Any, Dict
+from typing import Optional, Any
 
 from pydantic import BaseModel, Field, field_validator
 
@@ -20,14 +20,8 @@ class KnowledgeFileCreate(KnowledgeFileBase):
 
 class KnowledgeFileUpdate(KnowledgeFileBase):
     id: str = Field(..., description="文件ID")
-    updated_by: int = Field(None, max_value=2, description="更新者")
 
-    def to_update_dict(self) -> Dict[str, Any]:
-        # PATCH语义：只更新“传了的字段”
-        data = self.model_dump(exclude_unset=True)
-        data.pop("id", None)
-        # 约定：None 不更新（如果你希望“显式传 null 就写入 null”，这里需要你确认）
-        return {k: v for k, v in data.items() if v is not None}
+    updated_by: int = Field(None, max_value=2, description="更新者")
 
 class KnowledgeFileDelete(KnowledgeFileBase):
     id: str = Field(..., description="文件ID")
@@ -71,7 +65,3 @@ class KnowledgeFileResponse(BaseModel):
         "from_attributes": True,
         "extra": "ignore"
     }
-
-
-
-

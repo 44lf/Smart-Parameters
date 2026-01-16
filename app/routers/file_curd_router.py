@@ -1,4 +1,4 @@
-from fastapi import status, UploadFile, File, Form, HTTPException, PATH, Body
+from fastapi import status, UploadFile, File, Form, HTTPException, Path, Body
 
 from .base_router import BaseRouter
 from ..schemas.knowledge_file import KnowledgeFileUpdate
@@ -23,19 +23,19 @@ SUPPORTED_EXTENSIONS = {
 
 class FileHandleRouter(BaseRouter):
     def __init__(self):
-        logger.info("Initializing FileHandleRouter")
+        logger.info("Initializing FileHandleRouter (CRUD)")
         super().__init__()
         self.router = self._register_routes()
 
     def _register_routes(self):
         self.router.post(
-        "/uploadFile",
-        response_model=ApiResponse,
-        status_code=status.HTTP_201_CREATED,
-        summary="上传知识文件",
-        description="上传文档文件到系统",
-        tags=["知识管理"]
-    )(self.upload_knowledge_file)
+            "/uploadFile",
+            response_model=ApiResponse,
+            status_code=status.HTTP_201_CREATED,
+            summary="上传知识文件",
+            description="上传文档文件到系统",
+            tags=["知识管理"]
+        )(self.upload_knowledge_file)
 
         self.router.get(
             "/files/{id}",
@@ -62,6 +62,16 @@ class FileHandleRouter(BaseRouter):
             tags=["知识管理"]
         )(self.update_knowledge_file)
 
+        # --- 新增：注册替换文件的路由 ---
+        self.router.put(
+            "/files/{id}/content",
+            response_model=ApiResponse,
+            status_code=status.HTTP_200_OK,
+            summary="替换知识文件",
+            description="上传新文件以替换原有文件内容",
+            tags=["知识管理"]
+        )(self.replace_knowledge_file)
+
         return self.router
 
     async def upload_knowledge_file(
@@ -78,6 +88,7 @@ class FileHandleRouter(BaseRouter):
                 raise UnsupportedFileTypeException(f"不支持的文件类型: {file_extension}")
 
             uploaded_file = FileUploader()
+            # 注意：utils中的upload_file_form是异步的，需要await
             uploaded_object = await uploaded_file.upload_file_form(file, KB_BUCKET_NAME)
 
             if not uploaded_object:
@@ -94,7 +105,6 @@ class FileHandleRouter(BaseRouter):
             }
 
             record = knowledge_file_service.save_knowledge_file_response(knowledge_file_param)
-            # 改成这样:
             return ApiResponse(status=200, message="上传成功", data=record.model_dump())
 
         except (ValidationException, UnsupportedFileTypeException, DatabaseException) as e:
@@ -103,15 +113,12 @@ class FileHandleRouter(BaseRouter):
             logger.error(f"上传失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="服务器错误")
 
-
-
     async def find_knowledge_file(
         self,
         id: str = Path(..., description="知识文件ID"),
     ):
         try:
             record = knowledge_file_service.find_file_response(id)
-            # 改成这样:
             return ApiResponse(status=200, message="查找成功", data=record.model_dump())
         except ValidationException as e:
             raise HTTPException(status_code=422, detail=str(e))
@@ -121,14 +128,10 @@ class FileHandleRouter(BaseRouter):
             logger.error(f"查找失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="服务器错误")
 
-
-
     async def delete_knowledge_file(
         self,
         id: str = Path(..., description="要删除文件的ID"),
     ):
-
-
         try:
             result = knowledge_file_service.delete_knowledge_file(id)
             return ApiResponse(status=200, message="删除成功", data=result)
@@ -139,8 +142,6 @@ class FileHandleRouter(BaseRouter):
         except Exception as e:
             logger.error(f"删除失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="服务器错误")
-
-
 
     async def update_knowledge_file(
         self,
@@ -158,11 +159,7 @@ class FileHandleRouter(BaseRouter):
             logger.error(f"修改失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="服务器错误")
 
-
-
-
-
-
+    # --- 修复后的 replace 方法 ---
     async def replace_knowledge_file(
         self,
         id: str = Path(..., description="知识文件ID"),
@@ -181,9 +178,7 @@ class FileHandleRouter(BaseRouter):
             if not uploaded_object:
                 raise DatabaseException("文件上传失败")
 
-
-            patch = KnowledgeFileUpdate(
-
+            # 调用我们在 Service 层新增的方法
             updated = knowledge_file_service.update_file_fields(
                 id=id,
                 file_name=uploaded_object.get("stored_filename"),
@@ -203,9 +198,3 @@ class FileHandleRouter(BaseRouter):
         except Exception as e:
             logger.error(f"替换文件失败: {str(e)}", exc_info=True)
             raise HTTPException(status_code=500, detail="服务器错误")
-
-
-
-
-
-

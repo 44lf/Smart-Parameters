@@ -58,3 +58,30 @@ class KnowledgeFileService:
 
         record = self.get_file_by_id(file_id)
         return KnowledgeFileResponse.model_validate(record)
+
+    # --- 新增的方法 ---
+    def update_file_fields(self, id: str, file_name: str, file_type: str, minio_path: str, status: str) -> KnowledgeFileResponse:
+        """
+        专门用于替换文件时更新核心字段
+        """
+        if not id:
+            raise ValidationException("No id provided")
+
+        # 确保文件存在
+        _ = self.get_file_by_id(id)
+
+        # 构造更新字典
+        update_data = {
+            "file_name": file_name,
+            "file_type": file_type,
+            "minio_path": minio_path,
+            "status": status,
+            "updated_by": 1  # 保持与 create 一致，或者从 context 获取当前用户
+        }
+
+        updated = file_dao.update_file(id, update_data)
+        if not updated:
+            raise NotFoundException("Knowledge file not found")
+
+        record = self.get_file_by_id(id)
+        return KnowledgeFileResponse.model_validate(record)
