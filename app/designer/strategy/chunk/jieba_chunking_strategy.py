@@ -25,7 +25,7 @@ class JiebaChunkingStrategy:
         # jieba.load_userdict("custom_dict.txt")
         logger.info("Jieba分词器初始化完成")
 
-    def split_document(self, docs: List[Document], doc_path: str, minio_metadata: Dict) -> List[Document]:
+    def split_document(self, docs: List[Document], doc_path: str,minio_metadata: Dict) -> List[Document]:
         """使用Jieba进行中文文档分片"""
         if len(docs) == 0:
             raise RAGException(500, f"文档为空：{doc_path}")
