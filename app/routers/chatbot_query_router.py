@@ -11,7 +11,7 @@ from app.exceptions.base_api_exception import (
     DatabaseException,
     ValidationException
 )
-from app.models import KnowledgeFile
+from app.models.mysql.knowlegde_file import KnowledgeFile
 from app.routers.base_router import BaseRouter
 from app.schemas.common import ApiResponse  # 通用响应模型
 from app.services.chunk_service import ChunkService
@@ -170,4 +170,3 @@ class ChatBotQueryRouter(BaseRouter):
 
 
 
-        
