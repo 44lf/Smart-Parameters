@@ -87,9 +87,6 @@ class ChunkService:
     def _init_vector_store(self,  collection_name: str) -> Milvus:
         """初始化Milvus向量存储"""
 
-
-
-
         try:
             # 1. 定义连接参数（不含alias，alias在connect时指定）
             connect_params = {
