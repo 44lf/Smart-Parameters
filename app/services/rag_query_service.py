@@ -160,7 +160,9 @@ class RAGQueryService:
 
     def _init_vector_store(self, connection_args: Dict, collection_name: str) -> Milvus:
         """初始化Milvus向量存储（彻底修复连接不存在问题）"""
+
         try:
+            from pymilvus import FieldSchema, CollectionSchema, DataType, Collection
             # 1. 补充关键连接参数（协议和异步配置）
             connection_args = {
                 **connection_args,
@@ -194,31 +196,57 @@ class RAGQueryService:
 
             # 5. 检查集合是否存在（必须指定连接别名）
             if utility.has_collection(collection_name, using=alias):
-                logger.info(f"集合 '{collection_name}' 已存在（连接：{alias}）")
+                logger.info(f"集合 '{collection_name}' 已存在（连接:{alias}）")
             else:
-                logger.info(f"集合 '{collection_name}' 不存在，将自动创建（连接：{alias}）")
+                logger.info(f"集合 '{collection_name}' 不存在，开始创建（连接:{alias}）")
 
-            # 6. 创建向量存储（传递完整连接参数）
+                # 定义集合 schema
+                fields = [
+                    FieldSchema(name="pk", dtype=DataType.INT64, is_primary=True, auto_id=True),
+                    FieldSchema(name="text", dtype=DataType.VARCHAR, max_length=65535),
+                    FieldSchema(name="vector", dtype=DataType.FLOAT_VECTOR, dim=self.dim),
+                ]
+                schema = CollectionSchema(fields, description=f"RAG collection for {collection_name}")
+
+                # 创建集合
+                collection = Collection(
+                    name=collection_name,
+                    schema=schema,
+                    using=alias
+                )
+
+                # 创建向量索引
+                index_params = {
+                    "metric_type": "L2",
+                    "index_type": "IVF_FLAT",
+                    "params": {"nlist": 128}
+                }
+                collection.create_index(field_name="vector", index_params=index_params)
+                logger.info(f"✅ 集合 '{collection_name}' 创建成功")
+
+            # 6. 创建向量存储（此时集合已存在）
             vector_store = Milvus(
                 embedding_function=self.embeddings,
                 collection_name=collection_name,
-                connection_args=connection_args,  # 传递完整参数确保一致性
+                connection_args=connection_args,
                 auto_id=True,
-                drop_old=False
+                drop_old=False,
+                # 关键:显式指定主键和文本字段
+                primary_field="pk",
+                text_field="text",
+                vector_field="vector"
             )
 
-            # 7. 检查集合数据（仅当require_data为True时）
+            # 7. 加载集合到内存（可选,根据需求调整）
             if self.require_data:
-                # 显式指定连接别名获取集合
                 coll = Collection(name=collection_name, using=alias)
                 coll.load()
-                logger.info(f"集合 '{collection_name}'")
+                logger.info(f"集合 '{collection_name}' 已加载到内存")
 
-            logger.info(f"Milvus向量库初始化成功：{collection_name}（连接：{alias}）")
+            logger.info(f"✅ Milvus向量库初始化成功：{collection_name}（连接:{alias}）")
             return vector_store
 
         except Exception as e:
-            # 捕获并增强错误信息
             error_msg = f"Milvus初始化失败：{str(e)}"
             if "connection refused" in str(e).lower():
                 error_msg += f"（检查 {connection_args['host']}:{connection_args['port']} 是否可达）"
