@@ -3,7 +3,7 @@ import os
 import uuid
 
 from app.test.wrok3 import MinioClient, MinioConfig
-
+from pathlib import Path
 
 def main() -> None:
     # 1) 读取环境变量（按需改成你自己的配置方式）
@@ -15,7 +15,9 @@ def main() -> None:
         public_endpoint=os.getenv("MINIO_PUBLIC_ENDPOINT"),  # 可选：如 "minio.example.com"
     )
     bucket = os.getenv("MINIO_BUCKET", "demo-bucket")
-    local_file = os.getenv("MINIO_TEST_FILE", "README.md")  # 改成你本地存在的文件
+    local_file = Path(r"D:\project_new\fastApiProject1\docs\中华人民共和国劳动合同法.pdf")
+    if not local_file.is_file():
+        raise FileNotFoundError(f"file not found: {local_file}")
 
     mc = MinioClient(cfg)
 

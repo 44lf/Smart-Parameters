@@ -154,12 +154,12 @@ class ChunkService:
         try:
             # 使用UnstructuredMarkdownLoader加载文档
             loader = UnstructuredMarkdownLoader(
-                doc_path, mode="single", strategy="fast", encoding="utf-8"
+                doc_path, mode="elements", strategy="fast", encoding="utf-8"
             )
             docs = loader.load()
             if len(docs) == 0:
                 raise RAGException(400, "文档加载后为空")
-            logger.info(f"文档加载成功：{doc_path}（字符数：{len(docs[0].page_content)}）")
+            logger.info(f"文档加载成功：{doc_path}（字符数：{len(docs[0].page_content)}）(元数据:{docs[0].metadata}")
             return docs
         except UnicodeDecodeError:
             # 尝试GBK编码
