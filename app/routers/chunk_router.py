@@ -1,5 +1,8 @@
 import json
 from typing import Dict, Any
+
+from fastapi import HTTPException
+
 from .base_router import BaseRouter
 from ..config import settings
 from ..designer.strategy.chunk.jieba_chunking_strategy import JiebaChunkingStrategy
@@ -65,5 +68,7 @@ class ChunkRouter(BaseRouter):
             )
         except RAGException as e:
             logger.error(f"\n处理失败：[{e.code}] {e.message}", exc_info=True)
+            raise HTTPException(status_code=e.code, detail=e.message)
         except Exception as e:
             logger.error(f"\n未知错误：{str(e)}", exc_info=True)
+            raise HTTPException(status_code=500, detail=str(e))

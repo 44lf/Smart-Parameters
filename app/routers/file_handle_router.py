@@ -22,7 +22,7 @@ class FileHandleRouter(BaseRouter):
         self.router.post(
             "/uploadFile",
             response_model=ApiResponse,
-            status_code=status.HTTP_201_CREATED,
+            status_code=status.HTTP_200_CREATED,
             summary="上传知识文件",
             tags=["知识管理"]
         )(self.upload_knowledge_file)

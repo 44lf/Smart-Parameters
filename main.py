@@ -71,4 +71,4 @@ async def startup_event():
     logger.info("数据库表初始化完成")
 if __name__ == "__main__":
 
-    uvicorn.run("main:app", host="0.0.0.0", port=8019,workers=1, timeout_keep_alive=600 ,reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000,workers=1, timeout_keep_alive=600 )

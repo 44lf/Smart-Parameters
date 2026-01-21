@@ -154,7 +154,7 @@ class ChunkService:
         try:
             # 使用UnstructuredMarkdownLoader加载文档
             loader = UnstructuredMarkdownLoader(
-                doc_path, mode="elements", strategy="fast", encoding="utf-8"
+                doc_path, mode="single", strategy="fast", encoding="utf-8"
             )
             docs = loader.load()
             if len(docs) == 0:
