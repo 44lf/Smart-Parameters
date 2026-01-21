@@ -85,9 +85,9 @@ class ChunkService:
             # 连接Milvus
             connections.connect(**connection_args)
 
-            # 检查集合是否存在，如果存在则删除（可选，根据需求调整）
-            if utility.has_collection(collection_name):
-                utility.drop_collection(collection_name)
+            # # 检查集合是否存在，如果存在则删除（可选，根据需求调整）
+            # if utility.has_collection(collection_name):
+            #     utility.drop_collection(collection_name)
 
             # 创建新的集合
             vector_store = Milvus(
