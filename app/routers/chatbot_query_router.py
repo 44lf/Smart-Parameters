@@ -63,22 +63,26 @@ class UserQueryRequest(BaseModel):
 # --------------------------
 # 3. RAG服务单例依赖（避免重复初始化）
 # --------------------------
+_rag_service_instance = None
 def get_rag_service() -> RAGQueryService:
-    """依赖注入：全局单例RAG服务，避免每次请求重复初始化"""
-    try:
-        return RAGQueryService(
-            # milvus_uri=RAG_CONFIG["milvus_uri"],
-            milvus_host=settings.MILVUS_HOST,
-            milvus_port=settings.MILVUS_PORT,
-            milvus_token=RAG_CONFIG["milvus_token"],
-            embedding_model=RAG_CONFIG["embedding_model"],
-            llm_model=RAG_CONFIG["llm_model"],
-            ollama_base_url=RAG_CONFIG["ollama_base_url"],
-            dim=RAG_CONFIG["vector_dim"]
-        )
-    except Exception as e:
-        logger.error(f"RAG服务初始化失败：{str(e)}")
-        raise DatabaseException(f"向量查询服务不可用：{str(e)}")
+    """依赖注入:全局单例RAG服务"""
+    global _rag_service_instance
+    if _rag_service_instance is None:
+        try:
+            _rag_service_instance = RAGQueryService(
+                milvus_host=settings.MILVUS_HOST,
+                milvus_port=settings.MILVUS_PORT,
+                milvus_token=None,
+                embedding_model=settings.EMBEDDING_MODEL,
+                llm_model=settings.LLM_MODEL,
+                ollama_base_url=settings.OLLAMA_BASE_URL,
+                dim=1024,
+                require_data=False  # 关键:不强制要求集合有数据
+            )
+        except Exception as e:
+            logger.error(f"RAG服务初始化失败:{str(e)}")
+            raise DatabaseException(f"向量查询服务不可用:{str(e)}")
+    return _rag_service_instance
 
 
 # --------------------------
