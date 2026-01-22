@@ -17,6 +17,11 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from app.exceptions.rag_exception import RAGException
 from enum import Enum  # 新增：策略枚举
+from app.utils.rag_query import get_prompt_content_by_name
+
+
+
+
 # 新增：LLM/Embedding 服务策略枚举（明确支持的服务类型）
 class LLMStrategy(Enum):
     OLLAMA = "ollama"  # 本地 Ollama
@@ -282,7 +287,7 @@ class RAGQueryService:
 
     def _init_qa_chain(self) -> RetrievalQA:
         """初始化QA链（绑定NRS2002规则Prompt，确保输出带依据）"""
-#         nrs2002_prompt = PromptTemplate(
+        # nrs2002_prompt = PromptTemplate(
 #             template="""
 # 任务：根据NRS2002营养风险筛查规则，基于参考上下文计算患者评分，输出JSON（含评分和依据说明）。
 #
@@ -319,6 +324,8 @@ class RAGQueryService:
 # """,
 #             input_variables=["context", "question"]
 #         )
+        template = get_prompt_content_by_name(content)
+
 
         nrs2002_prompt = PromptTemplate(
             template="""

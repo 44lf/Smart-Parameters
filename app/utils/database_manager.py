@@ -2,8 +2,8 @@ from sqlalchemy import create_engine, Column, String, Integer, DateTime, Text
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.dialects.mysql import VARCHAR
-from app.models.mysql.knowledge_file import Base
-
+from app.models.mysql.knowledge_file import Base,KnowledgeFile
+from app.models.mysql.prompt_file import Prompt
 
 
 # 数据库连接和会话管理
