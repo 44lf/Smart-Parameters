@@ -4,17 +4,12 @@ from langchain_community.chat_models import ChatOpenAI
 from dotenv import load_dotenv
 import os
 # 加载环境变量
-current_dir = os.path.dirname(os.path.abspath(__file__))
-# 拼接出同级目录下 .env 的路径
-env_path = os.path.join(current_dir, '.env')
+# print(os.getenv("DEEPSEEK_API_KEY"))
 
 # 强制加载指定的 .env 文件
-if os.path.exists(env_path):
-    load_dotenv(dotenv_path=env_path, override=True) # override=True 确保覆盖掉系统变量
-    print(f"✅ 已加载环境配置: {env_path}")
-else:
-    print("❌ 未找到同级目录下的 .env 文件，尝试默认加载...")
-    load_dotenv()
+
+load_dotenv()
+print(os.getenv("DEEPSEEK_API_KEY"))
 # 配置 DeepSeek 模型
 chat = ChatOpenAI(
     model="deepseek-chat",
@@ -23,7 +18,7 @@ chat = ChatOpenAI(
     streaming=False,   # 先关掉，排错更直接
     temperature=0.7,
 )
-
+print(os.getenv("DEEPSEEK_API_KEY"))
 
 prompt_template = PromptTemplate.from_template(
 template="请给我讲一个关于{topic}的笑话"
