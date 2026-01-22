@@ -462,3 +462,5 @@ class RAGQueryService:
             raise
         except Exception as e:
             raise RAGQueryException(500, f"查询流程异常：{str(e)}")
+
+
