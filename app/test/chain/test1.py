@@ -1,39 +1,21 @@
 import os
-import glob
+from dotenv import find_dotenv, load_dotenv
 
-# 查找所有可能包含 API key 的文件
-patterns = [
-    '**/.env*',
-    '**/config.py',
-    '**/settings.py',
-    '**/*.ini',
-    '**/*.yaml',
-    '**/*.yml',
-    '**/*.json'
-]
+print("CWD:", os.getcwd())
 
-print("=== 搜索包含 '7cd7' 的文件 ===\n")
+# 1) 看 python-dotenv 最终会找到哪个 .env
+env_path = find_dotenv(usecwd=True)
+print("find_dotenv:", env_path or "<NOT FOUND>")
 
-search_dir = r"D:\project_new\fastApiProject1"
-found_files = []
+# 2) 先不加载，观察进程启动时就有没有变量（关键）
+print("KEY exists before load_dotenv:", "DEEPSEEK_API_KEY" in os.environ)
+print("KEY last4 before:", os.getenv("DEEPSEEK_API_KEY", "")[-4:])
 
-for pattern in patterns:
-    for filepath in glob.glob(os.path.join(search_dir, pattern), recursive=True):
-        try:
-            with open(filepath, 'r', encoding='utf-8', errors='ignore') as f:
-                content = f.read()
-                if '7cd7' in content or 'sk-' in content:
-                    found_files.append(filepath)
-                    print(f"✓ 找到: {filepath}")
-                    # 显示匹配行
-                    for i, line in enumerate(content.split('\n'), 1):
-                        if '7cd7' in line or ('sk-' in line and 'API' in line.upper()):
-                            print(f"  第{i}行: {line.strip()}")
-                    print()
-        except:
-            pass
+# 3) 再尝试加载（分别测试 override=False/True）
+loaded_no_override = load_dotenv(env_path, override=False) if env_path else False
+print("load_dotenv override=False:", loaded_no_override)
+print("KEY last4 after override=False:", os.getenv("DEEPSEEK_API_KEY", "")[-4:])
 
-if not found_files:
-    print("未找到包含旧 API key 的文件")
-else:
-    print(f"\n总共找到 {len(found_files)} 个文件")
+loaded_override = load_dotenv(env_path, override=True) if env_path else False
+print("load_dotenv override=True:", loaded_override)
+print("KEY last4 after override=True:", os.getenv("DEEPSEEK_API_KEY", "")[-4:])
