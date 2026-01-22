@@ -100,7 +100,7 @@ def insert_demo_data(collection, num_samples=50):
     return vectors
 
 
-def search_and_compare(collection, query_vec, metric_type, top_k=5):
+def search_and_compare(collection, query_vec, metric_type, top_k=1):
     """执行搜索并展示结果"""
     search_params = {
         "metric_type": metric_type,
@@ -121,8 +121,8 @@ def search_and_compare(collection, query_vec, metric_type, top_k=5):
             print(f"排名 {idx}: "
                   f"距离={hit.distance:.6f}, "
                   f"标签={hit.entity['label']}, "
-                  f"描述={hit.entity['desc']},"
-                  f"描述+{hit.entity['vector']}")
+                  f"描述={hit.entity['desc']}"
+                  )
     return results
 
 
