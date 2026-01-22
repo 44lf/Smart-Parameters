@@ -2,7 +2,7 @@ from typing import Dict, Optional, List, Any
 import logging
 import json
 import re
-
+import os
 from langchain_milvus import Milvus
 from langchain_ollama import OllamaEmbeddings,OllamaLLM
 from langchain_community.chat_models import ChatOpenAI
@@ -17,9 +17,12 @@ from langchain_core.runnables import RunnablePassthrough
 from langchain_core.output_parsers import StrOutputParser
 from app.exceptions.rag_exception import RAGException
 from enum import Enum  # 新增：策略枚举
-from app.utils.rag_query import get_prompt_content_by_name
+from app.utils.database_manager import DatabaseManager
 
 
+
+connection_string = os.getenv("MYSQL_URI")
+dbm = DatabaseManager(connection_string)
 
 
 # 新增：LLM/Embedding 服务策略枚举（明确支持的服务类型）
@@ -324,29 +327,36 @@ class RAGQueryService:
 # """,
 #             input_variables=["context", "question"]
 #         )
-        template = get_prompt_content_by_name(content)
 
 
+        #
+        # nrs2002_prompt = PromptTemplate(
+        #     template="""
+        # 任务：根据NRS2002营养风险筛查规则，基于参考上下文计算患者评分，输出JSON（含评分和依据说明）。
+        # 要求：
+        # 1. 先分析患者信息匹配哪条规则，再计算各维度分数和总分；
+        # 2. 输出JSON必须包含"score"（总分）、"nutritional_impairment"（营养受损分）、"disease_severity"（疾病严重度分）、"age"（年龄分）、"basis"（评分依据，说明匹配的规则条款）；
+        # 3. 仅输出JSON，无多余文字。
+        #
+        # 用户问题（患者信息）：{question}
+        # 参考上下文（NRS2002规则片段）：{context}
+        #
+        # 输出格式示例：
+        # {{
+        #   "score": 2,
+        #   "nutritional_impairment": 1,
+        #   "disease_severity": 1,
+        #   "age": 0,
+        #   "basis": "1.营养受损：BMI19.2（18.5-20.4）→1分；2.疾病严重度：COPD急性加重→1分；3.年龄65岁＜70→0分；总分1+1+0=2分"
+        # }}
+        # """,
+        #     input_variables=["context", "question"]
+        # )
+
+        content, output_req = dbm.get_prompt()
         nrs2002_prompt = PromptTemplate(
-            template="""
-        任务：根据NRS2002营养风险筛查规则，基于参考上下文计算患者评分，输出JSON（含评分和依据说明）。
-        要求：
-        1. 先分析患者信息匹配哪条规则，再计算各维度分数和总分；
-        2. 输出JSON必须包含"score"（总分）、"nutritional_impairment"（营养受损分）、"disease_severity"（疾病严重度分）、"age"（年龄分）、"basis"（评分依据，说明匹配的规则条款）；
-        3. 仅输出JSON，无多余文字。
-
-        用户问题（患者信息）：{question}
-        参考上下文（NRS2002规则片段）：{context}
-
-        输出格式示例：
-        {{
-          "score": 2,
-          "nutritional_impairment": 1,
-          "disease_severity": 1,
-          "age": 0,
-          "basis": "1.营养受损：BMI19.2（18.5-20.4）→1分；2.疾病严重度：COPD急性加重→1分；3.年龄65岁＜70→0分；总分1+1+0=2分"
-        }}
-        """,
+            template = f"""{content},
+            {output_req}""",
             input_variables=["context", "question"]
         )
 
