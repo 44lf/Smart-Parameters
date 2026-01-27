@@ -50,17 +50,21 @@ logging.basicConfig(
 logger = logging.getLogger("RAGQueryService")
 
 
+
+
+
 class RAGQueryService:
     def __init__(
             self,
             # 原有参数保持不变
             milvus_host: str = "127.0.0.1",
             milvus_port: str = "19530",
+            milvus_db_name: str = "vec_lhm",
             milvus_token: Optional[str] = None,
-            collection_name: str = "nrs2002_collection",
+            collection_name: str = "nrs2002_collection_v2",
             embedding_model: str = "bge-m3:latest",
             embedding_model_2: str = "nomic-embed-text:latest",  # 第二路向量模型
-            llm_model: str = "qwen3:8b",
+            llm_model: str = "qwen3:0.6b",
             ollama_base_url: str = "http://127.0.0.1:11434",
             dim: int = 1024,
             dim_2: int = 768,  # 第二路向量维度
@@ -69,7 +73,7 @@ class RAGQueryService:
             hybrid_vector_weight: float = 0.6,
             hybrid_bm25_weight: float = 0.4,
             # 新增重排参数
-            rerank_model: str = "bge-reranker-v2-m3:latest",  # 使用Ollama模型名称
+            rerank_model: str = "qllama/bge-reranker-large:latest",  # 使用Ollama模型名称
             rerank_top_n: int = 5,  # 重排后保留的文档数
             multi_retrieval_sources: List[str] = ["vector1", "bm25"]  # 多路召回源，默认只使用vector1和bm25
     ):
@@ -78,6 +82,7 @@ class RAGQueryService:
 
         self.milvus_host = milvus_host
         self.milvus_port = milvus_port
+        self.milvus_db_name = milvus_db_name
         self.milvus_token = milvus_token
         self.collection_name = collection_name
         self.embedding_model = embedding_model
@@ -114,7 +119,7 @@ class RAGQueryService:
         self.hybrid_qa_chain = self._init_hybrid_qa_chain()
         self.multi_retrieval_qa_chain = self._init_multi_retrieval_qa_chain()
 
-    def _init_embeddings(self, use_second_model: bool = False) -> OllamaEmbeddings:
+    def _init_embeddings(self, use_second_model: bool = True) -> OllamaEmbeddings:
         """初始化嵌入模型"""
         try:
             model_name = self.embedding_model_2 if use_second_model else self.embedding_model
@@ -227,6 +232,7 @@ class RAGQueryService:
             connections.connect(
                 host=self.milvus_host,
                 port=self.milvus_port,
+                db_name=self.milvus_db_name,
                 token=self.milvus_token,
                 alias="default",
                 pool_type="CPU"
@@ -287,7 +293,7 @@ class RAGQueryService:
                 model=self.llm_model,
                 base_url=self.ollama_base_url,
                 temperature=0.1,
-                client_kwargs={"timeout": 60.0}
+                client_kwargs={"timeout": 600.0}
             )
 
             # 测试LLM响应
@@ -989,7 +995,7 @@ NRS2002核心规则（必须严格遵守）：
 def diagnose_collection_status(milvus_host="localhost", milvus_port="19530"):
     """诊断Milvus集合状态"""
     try:
-        connections.connect("default", host=milvus_host, port=milvus_port)
+        connections.connect(db_name="vec_lhm", host=milvus_host, port=milvus_port)
 
         collections = utility.list_collections()
         print(f"可用集合: {collections}")
@@ -1031,10 +1037,10 @@ if __name__ == "__main__":
             milvus_host="localhost",
             milvus_port="19530",
             milvus_token=None,
-            collection_name="nrs2002_collection",
+            collection_name="nrs2002_collection_v2",
             embedding_model="bge-m3:latest",
             embedding_model_2="nomic-embed-text:latest",
-            llm_model="qwen3:8b",
+            llm_model="qwen3:0.6b",
             ollama_base_url="http://127.0.0.1:11434",
             dim=1024,
             dim_2=768,

@@ -77,3 +77,4 @@ print("实体提取:", entities)
 # 提取关系
 relations = pipeline.extract_relations(text)
 print("关系提取:", relations)
+

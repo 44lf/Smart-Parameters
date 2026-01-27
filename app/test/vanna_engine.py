@@ -21,7 +21,7 @@ class HealthRiskVanna(ChromaDB_VectorStore, Ollama):
 
         # 确保路径是绝对路径
         chroma_path = os.path.abspath(chroma_path)
-         os.makedirs(chroma_path, exist_ok=True)
+        os.makedirs(chroma_path, exist_ok=True)
         config['chroma_db_path'] = chroma_path
 
         logger.info(f"初始化 ChromaDB，路径: {chroma_path}")
