@@ -1,0 +1,1 @@
+invalid type: string "\n            CREATE TABLE IF NOT EXISTS user_health_risk_assessment (\n                id BIGINT AUTO_INCREMENT PRIMARY KEY COMMENT '记录ID',\n                user_id VARCHAR(64) NOT NULL COMMENT '用户唯一标识',\n                user_name VARCHAR(100) NOT NULL COMMENT '用户姓名',\n                sex ENUM('男', '女', '其他') NOT NULL COMMENT '性别',\n�>�j�

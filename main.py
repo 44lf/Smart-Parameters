@@ -49,13 +49,13 @@ app = FastAPI()
 app.include_router(FileHandleRouter().router, prefix="/api/v1/file")
 app.include_router(FileHandleRouter().router, prefix="/api/v2/file")
 
-app.include_router((HealthRiskVanna()._register_routes))
+
 app.include_router(ChunkRouter()._register_routes(), prefix="/api/v1/chunks")
 app.include_router(ChatBotQueryRouter()._register_routes(), prefix="/api/v1/rag")
 # app.include_router(KnowledgeFileRouter()._register_routes(), prefix="/api/v1/kb")
 # app.include_router(AgentRouter()._register_routes(), prefix="/api/v1/agent")
 # app.include_router(Text2EchartsRouter()._register_routes(), prefix="/api/v1/bi")
-app.include_router((Text2SqlRouter()._register_toures()),prefix="/api/v1/t2s")
+app.include_router((Text2SqlRouter()._register_routes()),prefix="/api/v1/t2s")
 # app.include_router(text2sql_router._register_routes(), prefix="/api/v1/t2s")
 # # 健康检查端点
 
