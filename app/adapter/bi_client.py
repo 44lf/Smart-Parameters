@@ -1,3 +1,8 @@
+from typing import Any, Dict
+
+from universal_client import DifyUniversalClient
+
+
 class EchartsClient:
     """Text2SQL 专用客户端"""
 
@@ -83,4 +88,3 @@ class EchartsClient:
         return results
 
 
-    

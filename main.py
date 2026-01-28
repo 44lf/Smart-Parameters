@@ -10,7 +10,7 @@ from app.routers.chatbot_query_router import ChatBotQueryRouter
 # from app.routers.tex2sql_router import Text2SqlRouter
 # from app.routers.knowledge_file_router import KnowledgeFileRouter
 # from app.routers.agent_router import AgentRouter
-# from app.routers.text2echarts_router import Text2EchartsRouter
+from app.routers.text2echarts_router import Text2EchartsRouter
 import logging.config
 import uvicorn
 from app.utils.database_manager import DatabaseManager
@@ -54,7 +54,7 @@ app.include_router(ChunkRouter()._register_routes(), prefix="/api/v1/chunks")
 app.include_router(ChatBotQueryRouter()._register_routes(), prefix="/api/v1/rag")
 # app.include_router(KnowledgeFileRouter()._register_routes(), prefix="/api/v1/kb")
 # app.include_router(AgentRouter()._register_routes(), prefix="/api/v1/agent")
-# app.include_router(Text2EchartsRouter()._register_routes(), prefix="/api/v1/bi")
+app.include_router(Text2EchartsRouter()._register_routes(), prefix="/api/v1/bi")
 app.include_router((Text2SqlRouter()._register_routes()),prefix="/api/v1/t2s")
 # app.include_router(text2sql_router._register_routes(), prefix="/api/v1/t2s")
 # # 健康检查端点
