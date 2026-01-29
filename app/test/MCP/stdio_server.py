@@ -128,5 +128,5 @@ class StdioMCPServer:
 if __name__ == "__main__":
     # 启动服务端（异步运行）
     server = StdioMCPServer()
-    print("正在监听")
+    # print("正在监听")
     asyncio.run(server.run())

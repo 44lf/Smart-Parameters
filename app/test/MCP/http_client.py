@@ -8,6 +8,9 @@ class HTTPMCPClient:
         self.base_url = base_url
         self.session = None
 
+    def call_url(self,api_url):
+        self.base_url=api_url
+
     async def connect(self):
         self.session = aiohttp.ClientSession()
 
@@ -17,6 +20,8 @@ class HTTPMCPClient:
             "params": {"name": tool_name, "arguments": arguments}
         }) as response:
             return await response.json()
+
+    # async def call_tool2(self):
 
     async def list_tools(self) -> Dict:
         async with self.session.post(f"{self.base_url}/mcp", json={
@@ -32,7 +37,7 @@ class HTTPMCPClient:
 
 # 使用示例
 async def main():
-    client = HTTPMCPClient("http://localhost:7000")
+    client = HTTPMCPClient("http://localhost:7001")
     await client.connect()
 
     try:
