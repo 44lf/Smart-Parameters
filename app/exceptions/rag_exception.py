@@ -5,3 +5,4 @@ class RAGException(Exception):
         self.code = code
         self.message = message
         super().__init__(f"[{code}] {message}")
+

@@ -112,12 +112,7 @@ async def sse_endpoint(session_id: str, request: Request):
         """生成SSE事件"""
         try:
             # 发送初始消息
-            yield f"data: {json.dumps({
-                'type': 'session_connected',
-                'session_id': session_id,
-                'timestamp': datetime.now().isoformat(),
-                'message': 'SSE连接已建立'
-            })}\n\n"
+            yield f"data: {json.dumps({'type': 'session_connected','session_id': session_id,'timestamp': datetime.now().isoformat(),'message': 'SSE连接已建立'})}\n\n"
 
             # 保持连接活跃，定期发送心跳
             while True:

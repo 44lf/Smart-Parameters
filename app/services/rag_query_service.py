@@ -7,7 +7,16 @@ from langchain_milvus import Milvus
 from langchain_ollama import OllamaEmbeddings,OllamaLLM
 from langchain_community.chat_models import ChatOpenAI
 from langchain_openai import OpenAIEmbeddings
-from langchain.chains import RetrievalQA
+# 旧的写法（已失效或弃用）:
+from langchain.chains.retrieval_qa.base import RetrievalQA
+
+# 新的写法:
+from langchain.chains import create_retrieval_chain
+from langchain.chains.combine_documents import create_stuff_documents_chain
+from langchain_core.prompts import ChatPromptTemplate
+# 如果你还需要保留旧的引用（不建议），也必须先导入：
+# from langchain_community.chains import RetrievalQA
+
 from langchain.prompts import PromptTemplate
 from langchain_core.documents import Document
 from pymilvus import Collection, connections, utility
